@@ -23,15 +23,16 @@ const emptyMap = startMap + endMap
 const emptyArray = startArray + endArray
 
 type Formatter struct {
-	KeyColor        *color.Color
-	StringColor     *color.Color
-	BoolColor       *color.Color
-	NumberColor     *color.Color
-	NullColor       *color.Color
-	StringMaxLength int
-	Indent          int
-	DisabledColor   bool
-	RawStrings      bool
+	KeyColor          *color.Color
+	StringColor       *color.Color
+	BoolColor         *color.Color
+	NumberColor       *color.Color
+	NullColor         *color.Color
+	StringMaxLength   int
+	Indent            int
+	DisabledColor     bool
+	RawStrings        bool
+	DisableEscapeHTML bool
 }
 
 func NewFormatter() *Formatter {
@@ -154,8 +155,11 @@ func (f *Formatter) marshalValue(val interface{}, buf *bytes.Buffer, depth int) 
 
 func (f *Formatter) marshalString(str string, buf *bytes.Buffer) {
 	if !f.RawStrings {
-		strBytes, _ := json.Marshal(str)
-		str = string(strBytes)
+		strBytes := strings.Builder{}
+		enc := json.NewEncoder(&strBytes)
+		enc.SetEscapeHTML(!f.DisableEscapeHTML)
+		_ = enc.Encode(str)
+		str = strBytes.String()
 	}
 
 	if f.StringMaxLength != 0 && len(str) >= f.StringMaxLength {
