@@ -159,7 +159,7 @@ func (f *Formatter) marshalString(str string, buf *bytes.Buffer) {
 		enc := json.NewEncoder(&strBytes)
 		enc.SetEscapeHTML(!f.DisableEscapeHTML)
 		_ = enc.Encode(str)
-		str = strBytes.String()
+		str = strings.TrimSpace(strBytes.String())
 	}
 
 	if f.StringMaxLength != 0 && len(str) >= f.StringMaxLength {
